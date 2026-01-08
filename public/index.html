@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostgreSQL Viewer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            --text-color: #2c3e50;
+            --accent-color: #34495e;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            /* Prevent scroll during animation */
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: var(--accent-color);
+            margin-bottom: 3rem;
+            font-weight: 700;
+            opacity: 0;
+            animation: fadeInDown 1.2s ease-out forwards;
+        }
+
+        .summary-container {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            line-height: 1.8;
+            color: #4a4a4a;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            padding: 3rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1s ease, transform 1s ease;
+        }
+
+        .summary-container.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .loading-indicator {
+            font-size: 1rem;
+            color: #888;
+            margin-top: 1rem;
+            opacity: 0.7;
+            animation: pulse 1.5s infinite;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            background: #fdedec;
+            padding: 1rem;
+            border-radius: 8px;
+            display: none;
+            margin-top: 1rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 0.5;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.5;
+            }
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .summary-container {
+                padding: 1.5rem;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>voici ce qui est arrivé le même jour en 1970....</h1>
+
+        <div id="loading" class="loading-indicator">Recherche dans les archives...</div>
+
+        <div id="summary-content" class="summary-container">
+            <!-- Content injected here -->
+        </div>
+
+        <div id="error" class="error-message"></div>
+    </div>
+
+    <script>
+        async function fetchData() {
+            const summaryEl = document.getElementById('summary-content');
+            const loadingEl = document.getElementById('loading');
+            const errorEl = document.getElementById('error');
+
+            try {
+                // Artificial delay for dramatic effect (optional, can be removed)
+                await new Promise(resolve => setTimeout(resolve, 800));
+
+                const response = await fetch('/api/data');
+                const data = await response.json();
+
+                loadingEl.style.display = 'none';
+
+                if (data.status === 'success') {
+                    if (data.results && data.results.length > 0) {
+                        const summary = data.results[0].summary;
+                        // Typewriter effect or just fade in? 
+                        // Let's go with the smooth fade/slide up requested.
+                        summaryEl.innerText = summary || "Les archives sont silencieuses pour cette date.";
+
+                        // Trigger animation
+                        // Small timeout to ensure DOM update is registered
+                        setTimeout(() => {
+                            summaryEl.classList.add('visible');
+                        }, 100);
+                    } else {
+                        summaryEl.innerText = "Aucun événement notable trouvé.";
+                        summaryEl.classList.add('visible');
+                    }
+                } else {
+                    throw new Error(data.message || 'Erreur inconnue');
+                }
+            } catch (error) {
+                loadingEl.style.display = 'none';
+                errorEl.style.display = 'block';
+                errorEl.textContent = `Une erreur est survenue : ${error.message}`;
+                console.error(error);
+            }
+        }
+
+        // Initialize
+        fetchData();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,44 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  SERVICE_NAME: postgres-viewer # Changez ceci si votre service a un autre nom
+  REGION: europe-west1 # Changez ceci si votre région est différente
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Authentification via clé de compte de service (Méthode simple)
+      # Pour plus de sécurité, utilisez Workload Identity Federation (WIF) à l'avenir
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v2'
+
+      - name: 'Deploy to Cloud Run'
+        uses: 'google-github-actions/deploy-cloudrun@v2'
+        with:
+          source: '.'
+          service: ${{ env.SERVICE_NAME }}
+          region: ${{ env.REGION }}
+          flags: '--allow-unauthenticated'
+
+      - name: 'Show Output'
+        run: echo ${{ steps.deploy.outputs.url }}
