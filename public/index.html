@@ -24,11 +24,8 @@
             margin: 0;
             padding: 0;
             display: flex;
-            justify-content: center;
-            align-items: center;
             min-height: 100vh;
-            overflow: hidden;
-            /* Prevent scroll during animation */
+            /* overflow: hidden; Removed to allow scrolling */
         }
 
         .container {
@@ -36,6 +33,8 @@
             max-width: 800px;
             text-align: center;
             padding: 2rem;
+            margin: auto;
+            /* Safe centering that doesn't clip content */
         }
 
         h1 {
