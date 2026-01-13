@@ -33,7 +33,7 @@ app.get('/api/data', async (req, res) => {
         SELECT summary 
         FROM research_results 
         ORDER BY id DESC
-        LIMIT 1;
+        LIMIT 2;
       `);
 
       // On essaie aussi d'avoir l'heure du serveur pour confirmer l'exécution dynamique

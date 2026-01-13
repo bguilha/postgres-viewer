@@ -160,10 +160,24 @@
 
                 if (data.status === 'success') {
                     if (data.results && data.results.length > 0) {
-                        const summary = data.results[0].summary;
-                        // Typewriter effect or just fade in? 
-                        // Let's go with the smooth fade/slide up requested.
-                        summaryEl.innerText = summary || "Les archives sont silencieuses pour cette date.";
+                        // Clear previous content
+                        summaryEl.innerHTML = '';
+
+                        data.results.forEach((result, index) => {
+                            const summaryText = result.summary;
+                            const p = document.createElement('p');
+                            p.innerText = summaryText;
+                            summaryEl.appendChild(p);
+
+                            // Add a separator if it's not the last item
+                            if (index < data.results.length - 1) {
+                                const hr = document.createElement('hr');
+                                hr.style.border = '0';
+                                hr.style.borderTop = '1px solid rgba(0,0,0,0.1)';
+                                hr.style.margin = '2rem 0';
+                                summaryEl.appendChild(hr);
+                            }
+                        });
 
                         // Trigger animation
                         // Small timeout to ensure DOM update is registered
